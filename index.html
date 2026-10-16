@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Жай сандар әлемі</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column; number grids as the visual motif; each subject gets its own section */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --ink:#14213a; --muted:#56627a; --line:#d8dee8;
+  --prime:#1f4fd1; --prime-soft:#e3eafc; --amber:#c27a00; --amber-soft:#fbefd6; --strike:#b9c1cf;
+  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1424; --surface:#161e33; --ink:#e7ecf6; --muted:#9aa6bf; --line:#2a3550;
+  --prime:#7ea2ff; --prime-soft:#1d2b52; --amber:#f2b441; --amber-soft:#3a2d12; --strike:#3a4560; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1424; --surface:#161e33; --ink:#e7ecf6; --muted:#9aa6bf; --line:#2a3550;
+  --prime:#7ea2ff; --prime-soft:#1d2b52; --amber:#f2b441; --amber-soft:#3a2d12; --strike:#3a4560; color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--f-body)}
+.wrap{max-width:860px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:clamp(2rem,7vw,3.4rem);font-weight:700}
+h2{font-size:clamp(1.25rem,3.6vw,1.6rem);font-weight:700}
+h3{font-size:1rem;font-weight:500}
+p{margin:0;max-width:65ch}
+.eyebrow{font:500 .75rem var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--amber)}
+section{display:flex;flex-direction:column;gap:16px}
+.hero{gap:20px}
+.hero .lead{font-size:1.1rem;color:var(--muted)}
+.hero-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;max-width:420px}
+.hero-grid span{aspect-ratio:1;display:grid;place-items:center;font:500 .8rem var(--f-mono);color:var(--strike);border-radius:4px}
+.hero-grid span.p{background:var(--prime);color:var(--bg)}
+.meta{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 .8rem var(--f-mono);padding:4px 10px;border:1px solid var(--line);border-radius:99px;background:var(--surface)}
+.subjects{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.subj{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.subj b{font-family:var(--f-display);font-weight:500;font-size:.95rem}
+.subj p{color:var(--muted);font-size:.93rem}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.goal{border-left:4px solid var(--amber);background:var(--amber-soft);padding:16px 18px;border-radius:0 10px 10px 0}
+ol.tasks{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:8px}
+.sieve{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+.sieve span{aspect-ratio:1;display:grid;place-items:center;font:500 clamp(.65rem,2.4vw,.9rem) var(--f-mono);border-radius:5px;background:var(--bg);transition:background .25s,color .25s}
+.sieve span.x{color:var(--strike);text-decoration:line-through}
+.sieve span.p{background:var(--prime);color:var(--surface);font-weight:600}
+.sieve span.cur{background:var(--amber);color:var(--surface)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button{font:600 .9rem var(--f-body);padding:9px 16px;border-radius:8px;border:1px solid var(--prime);background:var(--prime);color:var(--surface);cursor:pointer}
+button.ghost{background:transparent;color:var(--prime)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.status{font:.9rem var(--f-mono);color:var(--muted)}
+label{font-size:.9rem;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+input[type=range]{width:100%;accent-color:var(--prime)}
+select,input[type=number]{font:500 1rem var(--f-mono);padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.timeline{overflow-x:auto}
+.timeline svg{display:block;min-width:600px;width:100%}
+.result{font:500 1rem var(--f-mono);padding:12px 14px;border-radius:8px;background:var(--prime-soft)}
+.result.warn{background:var(--amber-soft)}
+.steps{font:.92rem/1.9 var(--f-mono);background:var(--bg);border-radius:8px;padding:12px 14px;overflow-x:auto}
+pre{margin:0;font:.85rem/1.6 var(--f-mono);background:var(--bg);border-radius:8px;padding:14px;overflow-x:auto}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:.93rem}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .75rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td:first-child{font-weight:600}
+.comps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px 20px}
+.comp{display:flex;gap:10px;align-items:baseline}
+.comp i{flex:none;width:10px;height:10px;border-radius:2px;background:var(--prime);transform:translateY(-1px)}
+.poster{display:grid;grid-template-columns:1fr;gap:10px;text-align:center}
+.poster .core{font-family:var(--f-display);font-size:1.3rem;padding:16px;border:2px solid var(--prime);border-radius:12px}
+.poster .branches{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.poster .branches div{padding:12px;border-radius:10px;background:var(--prime-soft);font-size:.92rem}
+.poster .concl{padding:12px;border-radius:10px;background:var(--amber-soft);font-weight:500}
+footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+[hidden]{display:none!important}
+
+.tap{cursor:pointer;transition:background .2s,border-color .2s}
+.tap:hover{border-color:var(--prime)}
+tr.tap:hover td,li.tap:hover,.comp.tap:hover{background:var(--prime-soft)}
+li.tap,.comp.tap{border-radius:6px;padding:4px 6px;margin:-4px -6px}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-left:6px;border-radius:50%;background:var(--prime-soft);color:var(--prime);font:600 .7rem var(--f-mono);vertical-align:1px;flex:none}
+.hint{font-size:.9rem;color:var(--muted);display:flex;gap:8px;align-items:center}
+.sieve span,.hero-grid span{cursor:pointer}
+.sheet{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center;background:rgba(10,16,32,.45)}
+.sheet .panel{background:var(--surface);color:var(--ink);width:100%;max-width:560px;max-height:80vh;overflow:auto;border-radius:16px 16px 0 0;
+  padding-top:20px;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:12px;animation:up .25s ease}
+@media (min-width:640px){.sheet{align-items:center}.sheet .panel{border-radius:16px}}
+@keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
+.sheet .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.sheet h3{font-size:1.1rem}
+.sheet .close{flex:none;width:36px;height:36px;padding:0;border-radius:50%;background:var(--bg);color:var(--ink);border:1px solid var(--line);font-size:1.1rem}
+.sheet .body{display:flex;flex-direction:column;gap:10px;line-height:1.65}
+.sheet .big{font:700 2.4rem var(--f-display);color:var(--prime)}
+@media (prefers-reduced-motion:reduce){.sheet .panel{animation:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Пәнаралық практикалық тапсырма</div>
+  <h1>Жай сандар: цикадалардан интернет қауіпсіздігіне дейін</h1>
+  <p class="lead">Жай сан тек 1-ге және өзіне бөлінеді. Осы қарапайым қасиет табиғатта да, банк картасының қорғанысында да жұмыс істейді.</p>
+  <div class="hero-grid" id="heroGrid" aria-hidden="true"></div>
+  <div class="meta">
+    <span class="chip">Математика</span><span class="chip">Информатика</span><span class="chip">Биология</span>
+  </div>
+</header>
+
+<section>
+  <div class="eyebrow">1 · Тақырып және проблема</div>
+  <h2>Жай сандар неге маңызды?</h2>
+  <p><b>Проблема:</b> жай сандар тек математика оқулығында ғана ма, әлде табиғат пен күнделікті өмірде де шешуші рөл атқара ма?</p>
+</section>
+
+<section>
+  <div class="eyebrow">2 · Пәндердің байланысы</div>
+  <h2>Үш пән, бір ұғым</h2>
+  <div class="subjects">
+    <div class="subj"><b>Математика</b><p>Жай және құрама сандар, бөлінгіштік, ЕКОЕ, ЕҮОБ, модуль бойынша есептеу.</p></div>
+    <div class="subj"><b>Информатика</b><p>RSA шифрлау: банк карталары, мессенджерлер, интернет. Python бағдарламасы.</p></div>
+    <div class="subj"><b>Биология</b><p>Цикадалар 13 және 17 жылда бір рет шығады. Жай сан циклі жыртқыштан қорғайды.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">3 · Ортақ оқу мақсаты</div>
+  <p class="goal">Оқушылар жай сандардың қасиеттерін біледі, оларды табу әдістерін қолданады және жай сандардың табиғаттағы және ақпараттық қауіпсіздіктегі рөлін түсіндіре алады.</p>
+</section>
+
+<section>
+  <div class="eyebrow">4 · Модель · Математика</div>
+  <h2>Эратосфен елегі</h2>
+  <p>2-ден бастап әр жай санның еселіктерін сызып тастаймыз. Сызылмай қалғандары жай сандар.</p>
+  <div class="box">
+    <div class="sieve" id="sieve"></div>
+    <div class="row">
+      <button id="sieveStep">Келесі қадам</button>
+      <button class="ghost" id="sieveAll">Бірден орындау</button>
+      <button class="ghost" id="sieveReset">Қайта бастау</button>
+    </div>
+    <div class="status" id="sieveStatus">Бастау үшін «Келесі қадам» батырмасын басыңыз.</div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">4 · Модель · Биология</div>
+  <h2>Цикада мен жыртқыш: ЕКОЕ</h2>
+  <p>Цикада әр <i>c</i> жылда, жыртқыш әр <i>j</i> жылда көбейеді. Олар ЕКОЕ(<i>c</i>; <i>j</i>) жыл сайын кездеседі. ЕКОЕ неғұрлым үлкен болса, цикадаға соғұрлым қауіпсіз.</p>
+  <div class="box">
+    <div class="controls">
+      <label for="cyc">Цикада циклі: <b id="cycV">17</b> жыл<input type="range" id="cyc" min="10" max="18" value="17"></label>
+      <label for="pred">Жыртқыш циклі: <b id="predV">4</b> жыл<input type="range" id="pred" min="2" max="6" value="4"></label>
+    </div>
+    <div class="timeline"><svg id="tl" viewBox="0 0 640 120" role="img" aria-label="100 жылдық уақыт сызығы"></svg></div>
+    <div class="result" id="lcmRes"></div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">4 · Модель · Информатика</div>
+  <h2>RSA шифрлау</h2>
+  <p>Екі жай сан көбейтіледі. Көбейтіндіні бәрі біледі, бірақ оны қайта жай көбейткіштерге жіктеу өте қиын. Шифрдың беріктігі осыда.</p>
+  <div class="box">
+    <div class="controls">
+      <label for="pSel">p (жай сан)<select id="pSel"></select></label>
+      <label for="qSel">q (жай сан)<select id="qSel"></select></label>
+      <label for="msg">Хабар m (0 ≤ m &lt; n)<input type="number" id="msg" value="4" min="0"></label>
+    </div>
+    <div class="steps" id="rsaSteps"></div>
+  </div>
+  <h3>Python бағдарламасы: Эратосфен елегі</h3>
+<pre>n = 100
+jai = [True] * (n + 1)
+jai[0] = jai[1] = False
+for i in range(2, int(n**0.5) + 1):
+    if jai[i]:
+        for j in range(i*i, n + 1, i):
+            jai[j] = False
+print([i for i in range(n + 1) if jai[i]])</pre>
+</section>
+
+<section>
+  <div class="eyebrow">5 · Құзыреттер</div>
+  <h2>Нені дамытады</h2>
+  <div class="comps">
+    <div class="comp"><i></i><span><b>Математикалық құзырет.</b> Жай және құрама сандарды ажыратады, ЕКОЕ мен ЕҮОБ-ты есептейді, модуль бойынша амалдар орындайды, нақты құбылыстың математикалық моделін құрады.</span></div>
+    <div class="comp"><i></i><span><b>Цифрлық құзырет.</b> Эратосфен елегін Python тілінде бағдарламалайды, интерактивті модельдермен жұмыс істейді, деректердің қалай шифрланатынын түсінеді.</span></div>
+    <div class="comp"><i></i><span><b>Жаратылыстану-ғылыми құзырет.</b> Цикадалардың тіршілік циклін талдайды, табиғат құбылыстарын математика арқылы түсіндіреді.</span></div>
+    <div class="comp"><i></i><span><b>Коммуникативтік құзырет.</b> Топта жұмыс істейді, міндеттерді бөліседі, нәтижені постер түрінде ұсынып, сұрақтарға дәлелді жауап береді.</span></div>
+    <div class="comp"><i></i><span><b>Сыни ойлау және зерттеушілік құзырет.</b> Болжам жасайды («неге цикада 17 жылда шығады?»), оны есептеу арқылы тексереді, себеп-салдарлық байланысты табады, өз қорытындысын жасайды.</span></div>
+    <div class="comp"><i></i><span><b>Функционалдық сауаттылық.</b> Мектепте алған білімін күнделікті өмірмен байланыстырады: банк картасы мен мессенджер қауіпсіздігі.</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">6 · Постер түрінде қорғау</div>
+  <h2>Постердің құрылымы</h2>
+  <div class="poster">
+    <div class="core">Жай сандар</div>
+    <div class="branches">
+      <div><b>Математика</b><br>Эратосфен елегі, ЕКОЕ</div>
+      <div><b>Биология</b><br>13 және 17 жылдық цикадалар</div>
+      <div><b>Информатика</b><br>RSA шифрлау, Python</div>
+    </div>
+    <div class="concl">Қорытынды: жай сандар табиғатта тіршілікті, ал цифрлық әлемде деректерді қорғайды.</div>
+  </div>
+</section>
+
+</div>
+
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="shTitle">
+  <div class="panel">
+    <div class="top"><h3 id="shTitle"></h3><button class="close" id="shClose" aria-label="Жабу">✕</button></div>
+    <div class="body" id="shBody"></div>
+  </div>
+</div>
+<script>
+const isPrime=n=>{if(n<2)return false;for(let i=2;i*i<=n;i++)if(n%i===0)return false;return true};
+// hero
+const hg=document.getElementById('heroGrid');
+for(let i=1;i<=30;i++){const s=document.createElement('span');s.textContent=i;if(isPrime(i))s.className='p';hg.appendChild(s)}
+
+// sieve
+const sv=document.getElementById('sieve'),st=document.getElementById('sieveStatus');
+let cells=[],state,cur;
+function sieveInit(){sv.innerHTML='';cells=[];state=Array(101).fill(0);cur=1;
+  for(let i=1;i<=100;i++){const s=document.createElement('span');s.textContent=i;if(i===1)s.className='x';sv.appendChild(s);cells[i]=s}
+  st.textContent='Бастау үшін «Келесі қадам» батырмасын басыңыз.'}
+function sieveStep(){
+  cells.forEach(c=>c&&c.classList.remove('cur'));
+  let p=cur+1;while(p<=100&&state[p])p++;
+  if(p>10){for(let i=2;i<=100;i++)if(!state[i])cells[i].className='p';
+    st.textContent='Дайын! 100-ге дейін 25 жай сан бар.';cur=101;return false}
+  cur=p;cells[p].className='p cur';let k=0;
+  for(let j=p*p;j<=100;j+=p){if(!state[j]){state[j]=1;cells[j].className='x';k++}}
+  st.textContent=p+' — жай сан. Оның '+k+' жаңа еселігі сызылды.';return true}
+document.getElementById('sieveStep').onclick=()=>{if(cur>100)return;sieveStep()};
+document.getElementById('sieveAll').onclick=()=>{if(cur>100)return;while(sieveStep());};
+document.getElementById('sieveReset').onclick=sieveInit;
+sieveInit();
+
+// cicada
+const gcd=(a,b)=>b?gcd(b,a%b):a, lcm=(a,b)=>a*b/gcd(a,b);
+const cyc=document.getElementById('cyc'),pred=document.getElementById('pred'),tl=document.getElementById('tl'),lr=document.getElementById('lcmRes');
+function drawTl(){const c=+cyc.value,j=+pred.value,L=lcm(c,j);
+  document.getElementById('cycV').textContent=c;document.getElementById('predV').textContent=j;
+  const x=y=>20+y*6;let s='';
+  s+=`<line x1="20" y1="60" x2="620" y2="60" stroke="var(--line)" stroke-width="2"/>`;
+  for(let y=0;y<=100;y+=10)s+=`<text x="${x(y)}" y="112" font-size="10" text-anchor="middle" fill="var(--muted)" font-family="IBM Plex Mono,monospace">${y}</text>`;
+  for(let y=j;y<=100;y+=j)s+=`<circle cx="${x(y)}" cy="78" r="3" fill="var(--muted)"/>`;
+  for(let y=c;y<=100;y+=c){const hit=y%j===0;s+=`<rect x="${x(y)-4}" y="34" width="8" height="18" rx="2" fill="${hit?'var(--amber)':'var(--prime)'}"/>`;
+    if(hit)s+=`<text x="${x(y)}" y="26" font-size="10" text-anchor="middle" fill="var(--amber)" font-family="IBM Plex Mono,monospace">кездесу</text>`}
+  s+=`<text x="20" y="14" font-size="10" fill="var(--prime)" font-family="IBM Plex Mono,monospace">▮ цикада</text><text x="100" y="14" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono,monospace">● жыртқыш</text>`;
+  tl.innerHTML=s;
+  const pr=isPrime(c);
+  lr.className='result'+(pr?'':' warn');
+  lr.textContent=`ЕКОЕ(${c}; ${j}) = ${L}. Цикада жыртқышпен әр ${L} жыл сайын кездеседі. ${pr?c+' жай сан, кездесу сирек.':c+' құрама сан, кездесу жиі.'}`}
+cyc.oninput=drawTl;pred.oninput=drawTl;drawTl();
+
+// RSA
+const primes=[3,5,7,11,13,17,19,23];
+const pS=document.getElementById('pSel'),qS=document.getElementById('qSel'),mI=document.getElementById('msg'),rs=document.getElementById('rsaSteps');
+primes.forEach(p=>{pS.add(new Option(p,p));qS.add(new Option(p,p))});pS.value=3;qS.value=11;
+const modpow=(b,e,m)=>{b=BigInt(b);e=BigInt(e);m=BigInt(m);let r=1n;b%=m;while(e>0n){if(e&1n)r=r*b%m;b=b*b%m;e>>=1n}return Number(r)};
+function rsa(){const p=+pS.value,q=+qS.value;
+  if(p===q){rs.textContent='p мен q әртүрлі жай сандар болуы керек.';return}
+  const n=p*q,f=(p-1)*(q-1);let e=3;while(gcd(e,f)!==1)e+=2;let d=1;while((e*d)%f!==1)d++;
+  mI.max=n-1;let m=+mI.value;if(!(m>=0&&m<n)){rs.innerHTML=`m саны 0 мен ${n-1} аралығында болуы керек.`;return}
+  const c=modpow(m,e,n),back=modpow(c,d,n);
+  rs.innerHTML=`n = p·q = ${p}·${q} = <b>${n}</b><br>φ = (p−1)(q−1) = ${p-1}·${q-1} = <b>${f}</b><br>Ашық кілт e = <b>${e}</b> (ЕҮОБ(e; φ) = 1)<br>Жабық кілт d = <b>${d}</b>, себебі ${e}·${d} = ${e*d} ≡ 1 (mod ${f})<br>Шифрлау: c = ${m}<sup>${e}</sup> mod ${n} = <b>${c}</b><br>Ашу: m = ${c}<sup>${d}</sup> mod ${n} = <b>${back}</b> ${back===m?'✓ бастапқы сан':''}`}
+[pS,qS,mI].forEach(el=>el.addEventListener('input',rsa));rsa();
+
+
+// info popups
+(function(){
+const sh=document.getElementById('sheet'),T=document.getElementById('shTitle'),B=document.getElementById('shBody');
+function open(t,html){T.textContent=t;B.innerHTML=html;sh.hidden=false;document.getElementById('shClose').focus()}
+function close(){sh.hidden=true}
+document.getElementById('shClose').onclick=close;
+sh.addEventListener('click',e=>{if(e.target===sh)close()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+const P=s=>s.map(x=>'<p>'+x+'</p>').join('');
+function bind(els,data){els.forEach((el,i)=>{const d=data[i];if(!d)return;el.classList.add('tap');el.tabIndex=0;el.setAttribute('role','button');
+  const tgt=el.tagName==='TR'?el.cells[0]:(el.querySelector('b')||el);const ib=document.createElement('span');ib.className='ib';ib.textContent='i';ib.setAttribute('aria-hidden','true');tgt.appendChild(ib);
+  const go=()=>open(d[0],P(d[1]));el.addEventListener('click',go);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}})})}
+
+bind([...document.querySelectorAll('.subj')],[
+ ['Математика',['Жай сан – дәл екі бөлгіші бар натурал сан: 1 және өзі. Ал екіден көп бөлгіші бар сан құрама сан деп аталады.','Арифметиканың негізгі теоремасы: 1-ден үлкен кез келген натурал сан жай көбейткіштерге бір ғана тәсілмен жіктеледі. Мысалы, 60 = 2²·3·5.','Евклид б.з.д. III ғасырда жай сандардың шексіз көп екенін дәлелдеген.']],
+ ['Информатика',['RSA алгоритмін 1977 жылы Ривест, Шамир және Адлеман ұсынған. Атауы олардың тегінің бас әріптерінен шыққан.','Екі үлкен жай санды көбейту оңай, ал көбейтіндіні қайта жай көбейткіштерге жіктеу өте қиын. Шифрдың беріктігі осы асимметрияға негізделген.','Қазіргі кілттерде жүздеген таңбадан тұратын сандар қолданылады. Банк карталары, HTTPS сайттар мен мессенджерлер осындай әдістермен қорғалады.']],
+ ['Биология',['Солтүстік Америкадағы мерзімді цикадалар жер астында 13 немесе 17 жыл дернәсіл күйінде тіршілік етеді, содан кейін миллиондап бір мезгілде жер бетіне шығады.','Ғалымдардың бір болжамы бойынша, жай сан циклі цикадаларды циклі қысқа жыртқыштармен сирек кездестіреді. Себебі жай санның басқа сандармен ЕКОЕ-сі үлкен болады.','Бұл табиғаттағы математикалық заңдылықтың жарқын мысалы.']]
+]);
+bind([...document.querySelectorAll('ol.tasks li')],[
+ ['1-тапсырма: Эратосфен елегі',['Әдіс: 1-ден 100-ге дейінгі сандар кестесін жазып, 2, 3, 5, 7 сандарының еселіктерін сызып тастау.','Неге 7-де тоқтаймыз? Себебі √100 = 10, ал 10-нан кіші ең үлкен жай сан – 7. Одан үлкен санның барлық құрама еселіктері бұрын сызылып қойған.','Күтілетін нәтиже: 25 жай сан.']],
+ ['2-тапсырма: цикадалар және ЕКОЕ',['Әдіс: ЕКОЕ(a; b) = a·b / ЕҮОБ(a; b) формуласы.','ЕКОЕ(12; 4) = 12, ЕКОЕ(17; 4) = 68. Яғни 12 жылдық цикада жыртқышпен әр циклде кездеседі, ал 17 жылдық цикада 4 циклде бір рет қана.','Сайттағы модельде цикада мен жыртқыш циклдерін өзгертіп, нәтижені салыстыруға болады.']],
+ ['3-тапсырма: RSA шифрлау',['Қадамдар: p және q жай сандарын таңдау, n = p·q және φ = (p−1)(q−1) есептеу, ЕҮОБ(e; φ) = 1 болатын e таңдау, e·d ≡ 1 (mod φ) болатын d табу.','Шифрлау: c = mᵉ mod n. Ашу: m = cᵈ mod n.','Мысал: p = 3, q = 11, m = 4 болса, c = 31, ал ашқанда қайта 4 шығады.']],
+ ['4-тапсырма: қорытынды',['Оқушылар үш модельдің нәтижесін салыстырып, жалпы қорытынды жасайды.','Табиғатта жай сандар кездесуді сиретеді, ал информатикада жіктеудің қиындығы қорғаныс береді. Екі жағдайда да жай сандардың бөлінбейтін қасиеті шешуші рөл атқарады.']]
+]);
+bind([...document.querySelectorAll('.comp')],[
+ ['Математикалық құзырет',['Сабақта қалай дамиды: Эратосфен елегін орындау, ЕКОЕ мен ЕҮОБ-ты есептеу, модуль бойынша дәрежеге шығару.','Нәтиже: оқушы нақты құбылысты математикалық модельмен сипаттай алады.']],
+ ['Цифрлық құзырет',['Сабақта қалай дамиды: Python-да Эратосфен елегін жазу, сайттағы интерактивті модельдермен тәжірибе жасау.','Нәтиже: оқушы алгоритмді бағдарламаға айналдырып, деректердің шифрлану принципін түсінеді.']],
+ ['Жаратылыстану-ғылыми құзырет',['Сабақта қалай дамиды: цикадалардың тіршілік циклін талдау, болжамды модель арқылы тексеру.','Нәтиже: оқушы табиғат құбылысын математикалық заңдылықпен түсіндіреді.']],
+ ['Коммуникативтік құзырет',['Сабақта қалай дамиды: топта рөлдерді бөлу (математик, биолог, бағдарламашы), постер дайындау, қорғау.','Нәтиже: оқушы өз ойын нақты жеткізіп, сұрақтарға дәлелмен жауап береді.']],
+ ['Сыни ойлау және зерттеушілік құзырет',['Сабақта қалай дамиды: «Неге цикада 17 жылда шығады?» деген болжамды есептеу арқылы тексеру, баламаларды салыстыру.','Нәтиже: оқушы себеп пен салдарды ажыратып, дәлелді қорытынды жасайды.']],
+ ['Функционалдық сауаттылық',['Сабақта қалай дамиды: математиканы банк картасы, онлайн төлем, мессенджер қауіпсіздігімен байланыстыру.','Нәтиже: оқушы мектептегі білімнің күнделікті өмірдегі қолданысын көреді.']]
+]);
+const lv=(a,b,c)=>['<b>2 ұпай:</b> '+a,'<b>1 ұпай:</b> '+b,'<b>0 ұпай:</b> '+c];
+bind([...document.querySelectorAll('tbody tr')],[
+ ['Жай сандарды анықтайды',lv('25 жай санның барлығын қатесіз табады.','Жай сандарды табады, бірақ 1–3 қате жібереді.','Әдісті қолдана алмайды.')],
+ ['ЕКОЕ-ні қолданады',lv('ЕКОЕ-ні дұрыс есептеп, нәтижені цикадалармен байланыстырады.','ЕКОЕ-ні есептейді, бірақ мағынасын түсіндірмейді.','ЕКОЕ-ні есептей алмайды.')],
+ ['Модель құрады',lv('RSA-ның барлық қадамын орындап, санды шифрлап, қайта ашады.','Шифрлайды, бірақ ашуда қателеседі.','Модельді құра алмайды.')],
+ ['Цифрлық құралды қолданады',lv('Бағдарламаны іске қосып, әр жолын түсіндіреді.','Бағдарламаны іске қосады, бірақ түсіндіре алмайды.','Бағдарламамен жұмыс істей алмайды.')],
+ ['Пәнаралық байланысты түсіндіреді',lv('Үш пәннің байланысын нақты мысалдармен дәлелдейді.','Байланысты атайды, бірақ мысал келтірмейді.','Байланысты көрсете алмайды.')],
+ ['Нәтижені қорғайды',lv('Постер логикалы, көрнекі; сұрақтарға толық жауап береді.','Постер толық емес немесе жауаптары жартылай.','Нәтижені ұсына алмайды.')]
+]);
+bind([...document.querySelectorAll('.poster .branches div')],[
+ ['Постер: математика бөлігі',['Мұнда 1–100 сандар кестесін Эратосфен елегімен көрсетіңіз: жай сандар бір түспен, сызылған сандар сұр түспен.','Қасына ЕКОЕ формуласын және 12 мен 17 жылдың есебін жазыңыз.']],
+ ['Постер: биология бөлігі',['Цикаданың суретін және 100 жылдық уақыт сызығын салыңыз: цикада шығатын жылдар мен жыртқышпен кездесу жылдары белгіленсін.','12 жыл мен 17 жылды қатар салыстыру ең көрнекі болады.']],
+ ['Постер: информатика бөлігі',['RSA-ның қадамдарын сызба түрінде көрсетіңіз: p, q → n, φ → e, d → шифрлау → ашу.','Python кодын немесе QR-код арқылы осы сайтты қосуға болады.']]
+]);
+
+// number info
+const isP=n=>{if(n<2)return false;for(let i=2;i*i<=n;i++)if(n%i===0)return false;return true};
+const facts={2:'2 – жалғыз жұп жай сан.',3:'RSA мысалында p = 3 ретінде қолданылды.',11:'RSA мысалында q = 11 ретінде қолданылды.',13:'13 жылдық цикадалар осы циклмен шығады.',17:'17 жылдық цикадалар осы циклмен шығады.',97:'97 – 100-ге дейінгі ең үлкен жай сан.',1:'1 жай сан да, құрама сан да емес, өйткені оның бөлгіші біреу ғана.'};
+function numInfo(n){let h='<div class="big">'+n+'</div>';
+  if(n===1){h+=P([facts[1]]);return open('1 саны',h)}
+  const dv=[];for(let i=1;i<=n;i++)if(n%i===0)dv.push(i);
+  if(isP(n)){h+=P(['<b>'+n+' – жай сан.</b> Бөлгіштері тек 1 және '+n+'.'].concat(facts[n]?[facts[n]]:[]));open('Жай сан',h)}
+  else{let m=n,f=[];for(let p=2;m>1;p++){let k=0;while(m%p===0){m/=p;k++}if(k)f.push(p+(k>1?'<sup>'+k+'</sup>':''))}
+    h+=P(['<b>'+n+' – құрама сан.</b>','Жай көбейткіштерге жіктелуі: '+n+' = '+f.join('·'),'Бөлгіштері ('+dv.length+'): '+dv.join(', ')]);open('Құрама сан',h)}}
+['sieve','heroGrid'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{const s=e.target.closest('span');if(s)numInfo(+s.textContent)}));
+
+// hint
+const lead=document.querySelector('.hero .lead');const h=document.createElement('p');h.className='hint';h.innerHTML='<span class="ib" style="margin:0">i</span> Карточкаларды, сандарды және құзыреттерді басыңыз, толық ақпарат шығады.';lead.after(h);
+})();
+</script>
+
+</body>
+</html>
